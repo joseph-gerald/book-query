@@ -59,16 +59,26 @@ function truncateText(text, maxLength = 360) {
 }
 
 async function downloadURI(uri, name) {
-    var link = document.createElement("a");
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
+    resultTitle.style.transitionDuration = "0ms";
+    resultTitle.style.marginTop = "-53px";
 
-    link.href = blobUrl;
-    link.download = name;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    setTimeout(async () => {
+        resultTitle.style.transitionDuration = "500ms";
+        var link = document.createElement("a");
+        resultTitle.style.marginTop = "-3px";
+    
+        resultTitle.innerHTML = `<h6 style="margin: 0">Downloading cover for ${name} ...</h6>`;
+    
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+    
+        link.href = blobUrl;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    }, 10);
 }
 
 async function query_submission(query_text) {
