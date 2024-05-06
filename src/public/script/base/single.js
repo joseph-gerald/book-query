@@ -78,6 +78,8 @@ async function downloadURI(uri, name) {
         document.body.appendChild(link);
         link.click();
         link.remove();
+
+        resultTitle.innerHTML = `<h6 style="margin: 0">Downloaded cover successfully!</h6>`;
     }, 10);
 }
 
