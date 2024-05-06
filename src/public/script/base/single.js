@@ -75,6 +75,23 @@ async function query_submission(query_text) {
     if (sumbit_button.value != "Submit") return;
     hideForm();
 
+    const thumbnail_res = 200;
+
+    // clear results so we can insert new results
+    results.innerHTML = ``;
+
+    const resultDiv = document.createElement("div");
+
+    resultDiv.classList.add("result")
+    resultDiv.style.height = "100%"
+    resultDiv.style.backgroundColor = "transparent";
+    resultDiv.style.display = "flex";
+    resultDiv.style.boxShadow = "none";
+    resultDiv.style.justifyContent = "center";
+
+    resultDiv.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
+    results.appendChild(resultDiv)
+
     sumbit_button.value = "...";
     sumbit_button.classList.add("clicked")
 
@@ -107,11 +124,10 @@ async function query_submission(query_text) {
     // stop blocking queries
     sumbit_button.classList.remove("clicked")
 
-    // clear results so we can insert new results
-    results.innerHTML = "";
-
     // handle zero results with a sad face
     if (dataSize == 0) {
+        results.innerHTML = ``
+
         const resultDiv = document.createElement("div");
         resultDiv.classList.add("result")
         resultDiv.style.height = "100%"
@@ -121,7 +137,7 @@ async function query_submission(query_text) {
         resultDiv.style.justifyContent = "center";
         resultDiv.innerHTML =
             `
-        <h1>Found no ${query_text} 😔</h1>
+        <h1>Found nothing for ${query_text} 😔</h1>
         `
         results.appendChild(resultDiv)
     }
@@ -136,8 +152,18 @@ async function query_submission(query_text) {
 
         const getRes = res => book.artworkUrl60.replace("60x60bb", `${res}x${res}bb`)
 
+        if (index++ == 0) {
+            for (const book of books) {
+                const img = new Image();
+                img.src = book.artworkUrl60.replace("60x60bb", `${thumbnail_res}x${thumbnail_res}bb`);
+            }
+
+            await fetch(getRes(thumbnail_res));
+            results.innerHTML = "";
+        }
+
         addResult(`
-        <img style="border-radius: 7.5px; border: 1px solid var(--theme-button-border-color); cursor: pointer; filter: blur(5px); transition-duration: 1500ms;" onload="if (this.src == '${getRes(400)}') return; { setTimeout(() => { this.src='${getRes(400)}'; this.style.filter = '' }, 50); }" src="${getRes(60)}" onclick="downloadURI('${getRes(100_000)}', 'bruh')">
+        <img style="border-radius: 7.5px; border: 1px solid var(--theme-button-border-color); cursor: pointer; filter: blur(3px); transition-duration: 350ms; height: 640px;" onload="if (this.src != '${getRes(800)}') { this.src='${getRes(800)}'; this.style.height='auto' } else { this.style.filter = ''; }" src="${getRes(thumbnail_res)}" onclick="downloadURI('${getRes(100_000)}', '${truncateText(book.trackName)}')">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
             <h4 style="margin: 0; cursor: pointer;" onclick="window.open('${book.trackViewUrl}')">${truncateText(book.trackName)}</h4>
             <h4 style="margin: 0; cursor: pointer; text-align: right;" onclick="window.open('${book.artistViewUrl}')">${truncateText(book.artistName)}</h4>
