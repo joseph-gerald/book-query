@@ -5,22 +5,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Data app base demo @ https://github.com/joseph-gerald/data-app-base">
-    <title>DATA APP BASE</title>
+    <title>Book Query</title>
     <link rel="stylesheet" href="style/index.css">
+    <link rel="stylesheet" href="style/single.css">
     <script src="/script/base/theme.js" defer></script>
+    <script src="/script/base/single.js" defer></script>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.png">
 </head>
 <body>
     <div class="content">
-        <h2 id="title" style="transform: translateY(-65px); transition-duration: 300ms;">
-            Select Input Type
+        <h2 id="title">
+            Book Query
         </h2>
-        <div class="search-form" style="display: flex; flex-direction: column; width: 300px; transform: translateY(70px); gap: 10px">
-            <input id="multi-line" class="submit rounded-box" style="margin: 0; position: relative; width: 100%;" type="button" onclick="window.location = '/multi.html';" value="Multi line">
-            <input id="single-line" class="submit rounded-box" style="margin: 0; position: relative; width: 100%;" type="button" onclick="window.location = '/single.html';" value="Single line">
+        <div class="results-container">
+            <div class="results">
+                
+            </div>
+        </div>
+        <h2 class="search-result">
+            <h2 class="search-result-title" />
+        </h2>
+        <div class="search-form">
+            <input id="query_content" class="query rounded-box" placeholder="Search Now">
+            <input id="submit_query" class="submit rounded-box" type="button" value="Submit">
         </div>
     </div>
-    
+    <div class="glow-box">
+        
+    </div>
     <div class="theme-toggle rounded-box" id="theme-toggle">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path id="theme-icon" fill="#303030" d="M10 3.5a6.5 6.5 0 1 1 0 13v-13ZM10 2a8 8 0 1 0 0 16a8 8 0 0 0 0-16Z"/></svg>
     </div>

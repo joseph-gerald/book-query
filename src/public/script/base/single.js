@@ -51,6 +51,26 @@ async function submit(query_text) {
     query_submission(query_text); // pass data to query handler
 }
 
+function truncateText(text, maxLength = 360) {
+    if (text.length > maxLength) {
+        return text.slice(0, maxLength) + '...';
+    }
+    return text;
+}
+
+async function downloadURI(uri, name) {
+    var link = document.createElement("a");
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    link.href = blobUrl;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
 async function query_submission(query_text) {
     if (sumbit_button.value != "Submit") return;
     hideForm();
@@ -63,18 +83,27 @@ async function query_submission(query_text) {
     // store start time for calculating time used, logging, etc
     const startTime = Date.now();
 
-    // fetch data
-    const data = Object.values(await (await fetch("https://baconipsum.com/api/?type=meat-and-filler&start-with-lorem=1&paras=3")).json());
-    const dogs = await (await fetch("https://api.thedogapi.com/v1/images/search?limit=3")).json();
+    const url = new URL("https://itunes.apple.com/search"),
+        params = {
+            "term": query_text,
+            "country": "no",
+            "entity": "ebook",
+            "limit": 25
+        };
 
-    const dataSize = data.length;
+    url.search = new URLSearchParams(params).toString();
+
+    // fetch data
+    const books = Object.values(await (await fetch(url)).json())[1];
+
+    const dataSize = books.length;
 
     let index = 0;
 
     // set title on top of the screen to data info (response size)
     resultTitle.innerText = `Got ${dataSize} ${dataSize == 1 ? "result" : "results"} for ${query_text}!`;
     sumbit_button.value = "Submit";
-    
+
     // stop blocking queries
     sumbit_button.classList.remove("clicked")
 
@@ -98,11 +127,28 @@ async function query_submission(query_text) {
     }
 
     // insert results
-    for (const part of data) {
+    for (const book of books) {
+        console.log(book)
+
+        // They sometimes have html in the description, so we need to parse it
+        const el = document.createElement("html");
+        el.innerHTML = book.description;
+
+        const getRes = res => book.artworkUrl60.replace("60x60bb", `${res}x${res}bb`)
+
         addResult(`
-        <h2 style="margin: 0">Index = ${index++}</h2>
-        <h6 style="margin: 0">${part}</h6>
-        <img style="border-radius: 10px; margin-top: 10px" src="${dogs[index].url}">
+        <img style="border-radius: 7.5px; border: 1px solid var(--theme-button-border-color); cursor: pointer; filter: blur(5px); transition-duration: 1500ms;" onload="if (this.src == '${getRes(400)}') return; { setTimeout(() => { this.src='${getRes(400)}'; this.style.filter = '' }, 50); }" src="${getRes(60)}" onclick="downloadURI('${getRes(100_000)}', 'bruh')">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <h4 style="margin: 0; cursor: pointer;" onclick="window.open('${book.trackViewUrl}')">${truncateText(book.trackName)}</h4>
+            <h4 style="margin: 0; cursor: pointer; text-align: right;" onclick="window.open('${book.artistViewUrl}')">${truncateText(book.artistName)}</h4>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; margin: 10px; gap: 10px;">
+            ${book.genres.slice(0, 4).map(genre => {
+            return `<h6 style="margin: 0">${genre}</h6>`
+        }).join("•")
+            }
+        </div>
+        <h6 style="margin: 0">${truncateText(el.innerText)}</h6>
         `)
     }
 }
@@ -110,7 +156,7 @@ async function query_submission(query_text) {
 // result logic/styling
 const addResult = async (html) => {
     const resultDiv = document.createElement("div");
-    
+
     resultDiv.classList.add("result")
     resultDiv.style.height = "100%"
     resultDiv.style.display = "flex";
